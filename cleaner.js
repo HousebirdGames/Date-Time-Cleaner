@@ -8,6 +8,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const readlineSync = require('readline-sync');
 const ignore = require('ignore');
+const moment = require('moment');
 
 let ig = ignore();
 
@@ -23,31 +24,26 @@ let ig = ignore();
     }
 })();
 
-async function stripDateTimeMetadata(directory) {
+async function stripDateTimeMetadata(directory, newDateTime) {
     let fileNumber = 0;
     const items = await readdir(directory, { withFileTypes: true });
 
-    const epoch = new Date(0);
-    await utimes(directory, epoch, epoch);
-    await exec(`powershell.exe "Get-Item '${directory}' | ForEach-Object { $_.CreationTime = '01/01/1970 00:00:00' }"`);
+    await utimes(directory, newDateTime, newDateTime);
+    await exec(`powershell.exe "Get-Item '${directory}' | ForEach-Object { $_.CreationTime = '${newDateTime}' }"`);
 
     for (const item of items) {
         const fullPath = path.join(directory, item.name);
         const relativePath = path.relative(process.cwd(), fullPath);
 
         if (ig.ignores(relativePath)) {
-            //console.log(`Ignoring ${relativePath}`);
             continue;
-        }
-        else {
-            //console.log(`Processing ${relativePath}`);
         }
 
         if (item.isDirectory()) {
-            fileNumber += await stripDateTimeMetadata(fullPath);
+            fileNumber += await stripDateTimeMetadata(fullPath, newDateTime);
         } else if (item.isFile()) {
-            await utimes(fullPath, epoch, epoch);
-            await exec(`powershell.exe "Get-Item '${fullPath}' | ForEach-Object { $_.CreationTime = '01/01/1970 00:00:00' }"`);
+            await utimes(fullPath, newDateTime, newDateTime);
+            await exec(`powershell.exe "Get-Item '${fullPath}' | ForEach-Object { $_.CreationTime = '${newDateTime}' }"`);
         }
         fileNumber++;
     }
@@ -57,11 +53,27 @@ async function stripDateTimeMetadata(directory) {
 (async () => {
     try {
         const directory = process.cwd();
-        const userConfirmed = readlineSync.keyInYN(`This process will modify the metadata of your files in ${directory} (excluding everything specified in .gitignore). Are you sure you want to continue?`);
+
+        console.log(`This process will modify the metadata of your files in ${directory} (excluding everything specified in .gitignore).`);
+        console.log(``);
+
+        let newDateTime;
+        const defaultDateTime = '01/01/1970 00:00:00';
+        while (true) {
+            newDateTime = readlineSync.question(`Enter the new date and time (MM/DD/YYYY HH:mm:ss), or press Enter to use the default (${defaultDateTime}): `, { defaultInput: defaultDateTime });
+            if (moment(newDateTime, 'MM/DD/YYYY HH:mm:ss', true).isValid()) {
+                break;
+            } else {
+                console.log('Invalid date and time. Please try again.');
+            }
+        }
+
+        console.log(``);
+        const userConfirmed = readlineSync.keyInYN(`Are you sure you want to continue?`);
         if (userConfirmed) {
             const spinner = createSpinner('Processing files...');
             spinner.start();
-            const fileNumber = await stripDateTimeMetadata(directory).catch(console.error);
+            const fileNumber = await stripDateTimeMetadata(directory, new Date(newDateTime)).catch(console.error);
             spinner.stop();
             console.log(``);
             console.log(`${fileNumber} folders/files processed`);

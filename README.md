@@ -1,6 +1,20 @@
 # Date-Time Cleaner
 
-Date-Time Cleaner is a Node.js application for Windows that sets the creation and last modified dates/times of the folder it is in, all subfolders, and all contained items to the default value of "01/01/1970 00:00:00". It excludes everything specified in the `.gitignore` file.
+Date-Time Cleaner is a Node.js application for Windows that allows you to set the creation and last modified dates/times of the folder it is in, all subfolders, and all contained items. By default, it sets the date/time to "01/01/1970 00:00:00", but you can specify a different date/time when you run the application. It excludes everything specified in the `.gitignore` file, if one is available within that folder.
+
+## Use Cases
+
+Date-Time Cleaner can be useful in several scenarios:
+
+1. **Privacy**: If you want to share files but don't want the metadata to reveal when the files were created or last modified, you can use Date-Time Cleaner to reset these dates/times.
+
+2. **Testing**: If you're testing software that depends on the creation or modification dates/times of files, you can use Date-Time Cleaner to set these dates/times to a known value.
+
+3. **Cleanup**: If you have old files with incorrect dates/times, you can use Date-Time Cleaner to reset them.
+
+Remember to always back up your files before running Date-Time Cleaner, as it will permanently modify the metadata of your files. 
+
+> **Use the cleaner at your own risk.**
 
 ## Pre-compiled Executable
 
