@@ -1,0 +1,20 @@
+{
+  "name": "Date-Time Cleaner",
+  "version": "1.0.0",
+  "description": "Sets the creation and last modified dates/times of folders, subfolders and all contained items to the default value of \"01/01/1970 00:00:00\".",
+  "main": "cleaner.js",
+  "bin": "cleaner.js",
+  "scripts": {
+    "start": "node cleaner.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Felix T. Vogel",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "ignore": "^5.3.1",
+    "path": "^0.12.7",
+    "pkg": "^5.8.1",
+    "readline-sync": "^1.4.10",
+    "sf": "^0.2.0"
+  }
+}
